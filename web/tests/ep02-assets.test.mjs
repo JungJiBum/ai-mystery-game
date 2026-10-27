@@ -28,55 +28,55 @@ function setup() {
   return { ...w, app, render };
 }
 
-test('EP01-02 이미지 3개가 PNG로 활성화되고 실제 크기와 일치한다', () => {
+test('원본 PNG 3개를 보존하되 화재 사진만 활성화한다', () => {
   const { EP02_ASSETS: assets } = setup();
   assert.deepEqual(Object.keys(assets), ['fire', 'search', 'press']);
+  assert.equal(assets.fire.ready, true);
+  assert.equal(assets.search.ready, false);
+  assert.equal(assets.press.ready, false);
   for (const asset of Object.values(assets)) {
-    assert.equal(asset.ready, true);
-    assert.match(asset.file, /^[a-z_]+\.png$/);
     const data = readFileSync(new URL(`../assets/images/ep01-02/${asset.file}`, import.meta.url));
     assert.deepEqual([...data.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     assert.equal(data.readUInt32BE(16), asset.width);
     assert.equal(data.readUInt32BE(20), asset.height);
   }
 });
-test('확정되지 않은 이미지 문자는 판독에서 제외하고 기관명은 가린다', () => {
+test('기관명 표지를 제외한 유효 영역을 크롭하고 오버레이를 만들지 않는다', () => {
   const { EP02_ASSETS: assets, render } = setup();
-  assert.equal(assets.fire.treatment, 'mask-sign');
-  assert.equal(assets.search.treatment, 'obscure-text');
-  assert.equal(assets.press.treatment, 'obscure-text');
-  const fire = render('article');
-  assert.match(fire, /ep2-sign-masked/);
-  assert.match(fire, /설정 외 기관명 가림/);
-  assert.match(fire, /동일 건물임을 입증하는 자료가 아닙니다/);
+  const { crop, width, height } = assets.fire;
+  assert.ok(crop.x >= 0 && crop.y >= 0 && crop.width > 0 && crop.height > 0);
+  assert.ok(crop.x + crop.width <= 360, '기관명 표지보다 왼쪽에서 크롭해야 한다');
+  assert.ok(crop.x + crop.width <= width && crop.y + crop.height <= height);
+  const html = render('article');
+  assert.match(html, /ep2-fire-photo/);
+  assert.doesNotMatch(html, /ep2-reference-shield|ep2-sign-masked|ep2-text-obscured/);
 });
-test('검색·보도자료 참고 이미지는 보조기기에 잘못된 문구를 전달하지 않는다', () => {
+test('모든 조사 화면에서 개발·검증 안내 문구가 나타나지 않는다', () => {
   const { render } = setup();
-  for (const scene of ['search', 'press']) {
-    const html = render(scene);
-    assert.match(html, /ep2-text-obscured/);
-    assert.match(html, /alt="" aria-hidden="true"/);
-    assert.match(html, /문자 판독 제외/);
-    assert.match(html, /게임의 설정이나 정답이 아닙니다/);
+  for (const scene of ['article', 'comparison', 'search', 'press', 'deduction']) {
+    assert.doesNotMatch(render(scene), /참고용|설정 외 기관명 가림|문자 판독 제외|정답이 아닙니다|원고 기반|동일 건물임을 입증/);
   }
 });
-test('검색 입력·삭제 흔적 원문이 참고 이미지보다 먼저 표시된다', () => {
-  const { render, EP02_STORY: story } = setup();
+test('검색 이미지는 설정과 무관하게 렌더링하지 않고 HTML 검색·삭제 흔적을 유지한다', () => {
+  const { render, EP02_ASSETS: assets, EP02_STORY: story } = setup();
+  assets.search.ready = true;
   const html = render('search');
-  assert.ok(html.indexOf('id="search-form"') < html.indexOf('data-reference="search"'));
-  assert.ok(html.indexOf(story.quotes.trace) < html.indexOf('data-reference="search"'));
+  assert.doesNotMatch(html, /archive_search.png|data-reference/);
+  assert.match(html, /id="search-form"/);
+  assert.ok(html.includes(story.quotes.trace));
   assert.match(html, /id="open-deleted"/);
   assert.match(html, /id="go-press"/);
 });
-test('공식 보존 문구가 문서 참고 이미지보다 먼저 표시된다', () => {
-  const { render, EP02_STORY: story } = setup();
+test('보도자료 이미지 없이 원문과 진행 버튼을 유지한다', () => {
+  const { render, EP02_ASSETS: assets, EP02_STORY: story } = setup();
+  assets.press.ready = true;
   const html = render('press');
-  assert.ok(html.indexOf(story.quotes.press) < html.indexOf('data-reference="press"'));
-  assert.ok(html.indexOf('</article>') < html.indexOf('data-reference="press"'));
-  assert.ok(html.indexOf('id="read-press"') < html.indexOf('data-reference="press"'));
+  assert.doesNotMatch(html, /press_release.png|data-reference/);
+  assert.ok(html.includes(story.quotes.press));
+  assert.match(html, /class="ep2-release"/);
   assert.match(html, /id="read-press"/);
 });
-test('가족사진 재사용·안내판 판독·연결된 화재 참고 이미지를 함께 유지한다', () => {
+test('가족사진 재사용과 안내판 판독은 이미지 증명과 독립적으로 유지한다', () => {
   const { render } = setup();
   const html = render('comparison');
   assert.match(html, /assets\/images\/ep01-01\/photo-front.webp/);
@@ -85,15 +85,13 @@ test('가족사진 재사용·안내판 판독·연결된 화재 참고 이미�
   assert.match(html, /…기록실/);
   assert.match(html, /id="go-search"/);
 });
-test('이미지 미제공 상태에서도 원고 기반 조사 UI가 유지된다', () => {
+test('화재 사진을 표시하지 못해도 HTML 조사 흐름을 유지한다', () => {
   const { EP02_ASSETS: assets, render, EP02_STORY: story } = setup();
-  for (const asset of Object.values(assets)) asset.ready = false;
+  assets.fire.ready = false;
   const article = render('article');
-  assert.match(article, /이미지 준비 중/);
+  assert.match(article, /사진을 표시할 수 없습니다/);
   assert.match(article, /id="read-article"/);
-  const search = render('search'), press = render('press');
-  assert.match(search, /id="search-form"/);
-  assert.ok(press.includes(story.quotes.press));
-  assert.ok(!search.includes('src="assets/images/ep01-02/'));
-  assert.ok(!press.includes('src="assets/images/ep01-02/'));
+  assert.doesNotMatch(article, /src="assets\/images\/ep01-02/);
+  assert.match(render('search'), /id="search-form"/);
+  assert.ok(render('press').includes(story.quotes.press));
 });
