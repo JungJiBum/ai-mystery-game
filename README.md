@@ -29,7 +29,7 @@ EP01-01 완료 화면에서 EP01-02를 시작할 수 있습니다. EP01-02는 Ob
 - 회차별 이어하기·초기화 격리, 저장 차단 시 현재 페이지 메모리로 회차 이동
 - 원고의 연구소 고유명은 미기재 상태 유지; 검색은 ‘기사 속 연구소 + 기록실’이라는 게임 내 자료 검색
 - 안내판의 ‘…기록실’은 기존 이미지 수정 없이 원고 기반 HTML 판독으로 제공
-- 새 이미지 3종은 미제공이며 HTML 자료 열람 UI로 전체 플레이 가능
+- EP01-02 PNG 3종을 참고용으로 적용. 설정 밖 기관명은 가리고 검색·보도자료 이미지 글자는 비노출 처리하며, 공식 단서는 원고 기준 HTML 유지
 - EP01-03 「존재하지 않는 기록」은 제목 암시만 제공하며 이동·플레이 기능 없음
 
 상세한 구현과 제약은 [EP01-02 안내](web/EP01-02.md)를 참고하세요.
@@ -52,7 +52,7 @@ python3 -m http.server 8080 --directory web
 
 ## 테스트 현황
 
-- Node.js 자동 회귀 테스트 **28개 통과** (기존 13개 유지 + 신규 15개): 원문, 추리 조합·잠금, 저장 검증·이전·완료 복원, 활성 이미지 파일 확인
+- Node.js 자동 회귀 테스트 **35개 통과** (기존 28개 유지 + 이미지 관련 7개): 원문, 추리 조합·잠금, 저장 검증·이전·완료 복원, 활성 이미지 파일 확인
 - 실제 이미지 연결 후 시작부터 기사·완료까지 전체 플레이 확인
 - 사진·쪽지·완료 상태 새로고침 복원, 초기화 취소·확정, 오답 재시도 확인
 - 320px·390px·1280px 프레임의 표시·잘림·가로 넘침 점검
@@ -79,10 +79,11 @@ node --test web/tests/*.test.mjs
 | `web/assets/images/ep01-01/` | 연결된 이미지와 규격 문서 |
 | `web/assets/images/parcel.svg` | 사용하지 않는 이전 버전 참고 이미지 |
 | `web/tests/state.test.mjs` | 기존 13개 자동 회귀 테스트 |
-| `web/tests/episodes.test.mjs` | 신규 15개 회차·저장·EP01-02 테스트 |
+| `web/tests/episodes.test.mjs` | 회차·저장·EP01-02 테스트 15개 |
+| `web/tests/ep02-assets.test.mjs` | PNG 경로·크기·참고 이미지 보호·HTML 유지 테스트 7개 |
 | `web/js/episodes.js`, `web/js/router.js`, `web/js/storage.js` | 회차 목록·해시 전환·저장 격리 |
 | `web/js/episodes/ep01-02/` | EP01-02 독립 데이터·상태·화면 |
-| `web/assets/images/ep01-02/` | 별도 이미지 자산 규격 (아직 미제공) |
+| `web/assets/images/ep01-02/` | 참고 PNG 3개와 설정 불일치·표시 처리 안내 |
 | `web/README.md`, `web/TESTING.md` | 상세 실행·검증 문서 |
 | `.github/workflows/pages.yml` | GitHub Pages 수동 배포 워크플로 |
 | `.gitignore` | 환경변수·의존성·캐시 등 업로드 제외 설정 |
