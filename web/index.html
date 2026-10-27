@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101211">
+  <meta name="description" content="발신인 없는 택배에서 시작되는 짧은 인터랙티브 미스터리. AI Story EP01-01.">
+  <title>AI Story — 발신인 없는 택배</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script defer src="js/story.js"></script>
+  <script defer src="js/assets.js"></script>
+  <script defer src="js/state.js"></script>
+  <script defer src="js/game.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="./">AI STORY<span>INTERACTIVE MYSTERY</span></a><span class="episode">EP. 01 / 01</span><button id="reset" class="quiet" hidden>처음부터</button></header>
+  <main id="app"></main>
+  <footer><span>AI STORY ARCHIVE</span><span>어떤 기억은, 도착할 때까지 기다린다.</span></footer>
+  <dialog id="detail" aria-labelledby="detail-title"><button id="close-detail" class="close" aria-label="상세 정보 닫기">×</button><p id="detail-kind" class="eyebrow">EVIDENCE RECORD</p><h2 id="detail-title"></h2><div id="detail-body"></div></dialog>
+  <dialog id="restart-dialog" aria-labelledby="restart-title"><h2 id="restart-title">처음부터 시작할까요?</h2><p>수집한 증거와 저장된 진행 상황이 초기화됩니다.</p><button id="cancel-reset" class="secondary">취소</button> <button id="confirm-reset" class="primary">초기화하고 시작</button></dialog>
+  <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+</body>
+</html>
