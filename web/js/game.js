@@ -87,13 +87,50 @@
       };
       body.querySelector('#note-object').onclick = toggle; body.querySelector('#unfold-note').onclick = toggle;
     } else {
-      body.innerHTML = `<p class="inspection-instruction">확대한 뒤 가로·세로로 스크롤해 외관을 살펴보세요.</p><div id="usb-viewport" class="usb-viewport" tabindex="0" role="region" aria-label="USB 확대 관찰 영역. 화살표 키로 스크롤"><div id="usb-object" class="usb-object">${media('usb')}</div></div><div class="zoom-controls"><button id="zoom-out" class="secondary" aria-label="USB 축소">−</button><output id="zoom-value" aria-live="polite">100%</output><button id="zoom-in" class="secondary" aria-label="USB 확대">＋</button><button id="zoom-reset" class="quiet">원래 크기</button></div><p class="object-caption">${esc(story.evidence.usb.description)}</p><p class="muted">${esc(story.evidence.usb.hint)}</p>`;
+      body.innerHTML = `<p class="inspection-instruction">확대한 이미지를 마우스나 손가락으로 드래그해 살펴보세요. 스크롤바도 사용할 수 있습니다.</p><div id="usb-viewport" class="usb-viewport" tabindex="0" role="region" aria-label="USB 확대 관찰 영역. 드래그로 이동하거나 화살표 키와 스크롤바로 스크롤"><div id="usb-object" class="usb-object">${media('usb')}</div></div><div class="zoom-controls"><button id="zoom-out" class="secondary" aria-label="USB 축소">−</button><output id="zoom-value" aria-live="polite">100%</output><button id="zoom-in" class="secondary" aria-label="USB 확대">＋</button><button id="zoom-reset" class="quiet">원래 크기</button></div><p class="object-caption">${esc(story.evidence.usb.description)}</p><p class="muted">${esc(story.evidence.usb.hint)}</p>`;
+      const viewport = body.querySelector('#usb-viewport');
+      const object = body.querySelector('#usb-object');
+      let drag = null;
+      function stopDrag(event) {
+        if (!drag || (event?.pointerId !== undefined && event.pointerId !== drag.id)) return;
+        const id = drag.id;
+        drag = null;
+        viewport.classList.remove('is-dragging');
+        if (object.hasPointerCapture(id)) object.releasePointerCapture(id);
+      }
+      // 이미지 영역에만 연결해 네이티브 스크롤바의 드래그는 가로채지 않는다.
+      object.addEventListener('pointerdown', event => {
+        if (zoom <= 1 || drag || event.isPrimary === false || event.button !== 0) return;
+        event.preventDefault();
+        viewport.focus({ preventScroll: true });
+        drag = { id: event.pointerId, x: event.clientX, y: event.clientY };
+        object.setPointerCapture(event.pointerId);
+        viewport.classList.add('is-dragging');
+      });
+      object.addEventListener('pointermove', event => {
+        if (!drag || event.pointerId !== drag.id) return;
+        event.preventDefault();
+        viewport.scrollLeft += drag.x - event.clientX;
+        viewport.scrollTop += drag.y - event.clientY;
+        // 경계에서도 마지막 포인터 위치를 갱신해 반대 방향 이동이 즉시 반영된다.
+        drag.x = event.clientX;
+        drag.y = event.clientY;
+      });
+      for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) object.addEventListener(type, stopDrag);
+      object.addEventListener('dragstart', event => event.preventDefault());
+      object.addEventListener('selectstart', event => event.preventDefault());
+      window.addEventListener('blur', stopDrag);
+      dialog.addEventListener('close', () => {
+        stopDrag();
+        window.removeEventListener('blur', stopDrag);
+      }, { once: true });
       function scale(value) {
-        const viewport = body.querySelector('#usb-viewport');
+        stopDrag();
         const centerX = (viewport.scrollLeft + viewport.clientWidth / 2) / viewport.scrollWidth;
         const centerY = (viewport.scrollTop + viewport.clientHeight / 2) / viewport.scrollHeight;
         zoom = Math.max(1, Math.min(3, value));
-        const object = body.querySelector('#usb-object'); object.style.width = `${zoom * 100}%`; object.style.height = `${zoom * 100}%`;
+        object.style.width = `${zoom * 100}%`; object.style.height = `${zoom * 100}%`;
+        viewport.classList.toggle('is-zoomed', zoom > 1);
         body.querySelector('#zoom-value').textContent = `${Math.round(zoom * 100)}%`;
         body.querySelector('#zoom-out').disabled = zoom === 1; body.querySelector('#zoom-in').disabled = zoom === 3;
         // 확대 전 보고 있던 위치를 유지해 물건이 화면 밖으로 밀려나지 않게 한다.
