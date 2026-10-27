@@ -3,16 +3,24 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#101211">
-  <meta name="description" content="발신인 없는 택배에서 시작되는 짧은 인터랙티브 미스터리. AI Story EP01-01.">
+  <meta name="description" content="발신인 없는 택배에서 시작되는 짧은 인터랙티브 미스터리. AI Story EP01-01·EP01-02.">
   <title>AI Story — 발신인 없는 택배</title>
   <link rel="stylesheet" href="css/style.css">
   <script defer src="js/story.js"></script>
   <script defer src="js/assets.js"></script>
   <script defer src="js/state.js"></script>
   <script defer src="js/game.js"></script>
+  <script defer src="js/episodes/ep01-02/story.js"></script>
+  <script defer src="js/episodes/ep01-02/assets.js"></script>
+  <script defer src="js/episodes/ep01-02/state.js"></script>
+  <script defer src="js/episodes/ep01-02/game.js"></script>
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/episodes.js"></script>
+  <script defer src="js/router.js"></script>
 </head>
 <body>
   <header class="topbar"><a class="brand" href="./">AI STORY<span>INTERACTIVE MYSTERY</span></a><span class="episode">EP. 01 / 01</span><button id="reset" class="quiet" hidden>처음부터</button></header>
+  <nav class="episode-nav" aria-label="회차 선택"><a href="#ep01-01" data-episode-link="ep01-01">EP01-01 · 발신인 없는 택배</a><a href="#ep01-02" data-episode-link="ep01-02">EP01-02 · 12년 전의 사고</a></nav>
   <main id="app"></main>
   <footer><span>AI STORY ARCHIVE</span><span>어떤 기억은, 도착할 때까지 기다린다.</span></footer>
   <dialog id="detail" aria-labelledby="detail-title"><button id="close-detail" class="close" aria-label="상세 정보 닫기">×</button><p id="detail-kind" class="eyebrow">EVIDENCE RECORD</p><h2 id="detail-title"></h2><div id="detail-body"></div></dialog>

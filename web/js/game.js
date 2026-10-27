@@ -1,5 +1,6 @@
-(() => {
-  'use strict';
+'use strict';
+window.Episode01 = { mount({ initialState, resumeImmediately = false, onNext = () => { window.location.hash = 'ep01-02'; } } = {}) {
+  const viewCleanups = new Set();
   const story = window.STORY, assets = window.ASSETS, model = window.GameState;
   const key = `ai-story:${story.id}:v2`, legacyKey = `ai-story:${story.id}:v1`;
   const app = document.querySelector('#app'), dialog = document.querySelector('#detail');
@@ -11,7 +12,8 @@
     catch { state = model.fresh(); }
     migrated = current === null && previous !== null;
   } catch { storageOK = false; }
-  let resume = state.scene !== 'start';
+  if (initialState) { state = model.normalize(initialState); migrated = false; }
+  let resume = state.scene !== 'start' && !resumeImmediately;
   function save() {
     try { localStorage.setItem(key, JSON.stringify(state)); }
     catch { storageOK = false; }
@@ -120,10 +122,14 @@
       object.addEventListener('dragstart', event => event.preventDefault());
       object.addEventListener('selectstart', event => event.preventDefault());
       window.addEventListener('blur', stopDrag);
-      dialog.addEventListener('close', () => {
+      const cleanupUsb = () => {
         stopDrag();
         window.removeEventListener('blur', stopDrag);
-      }, { once: true });
+        dialog.removeEventListener('close', cleanupUsb);
+        viewCleanups.delete(cleanupUsb);
+      };
+      viewCleanups.add(cleanupUsb);
+      dialog.addEventListener('close', cleanupUsb, { once: true });
       function scale(value) {
         stopDrag();
         const centerX = (viewport.scrollLeft + viewport.clientWidth / 2) / viewport.scrollWidth;
@@ -170,7 +176,8 @@
       app.innerHTML = `<section class="ending"><p class="eyebrow">04 / 기록 확인</p><h1 tabindex="-1">12년 전의 기록을 찾았다.</h1><article class="newspaper"><p class="paper-label">ARCHIVE / 12 YEARS AGO</p><h2>${story.article.title}</h2><div class="paper-rule"></div><p>${story.article.body}</p><small>게임 속 기사 요약 · 실제 보도 자료가 아닙니다</small></article><p class="lead">${story.article.after}</p><button id="finish" class="primary">기사 확인 · 조사 마치기 →</button></section>`;
       document.querySelector('#finish').onclick = () => { state.articleRead = true; state.completed = true; move('complete'); };
     } else if (state.scene === 'complete') {
-      app.innerHTML = `<section class="completion"><p class="eyebrow">CASE FILE / EP01-01</p><span class="completion-seal" aria-hidden="true">✓</span><h1 tabindex="-1">${story.completion.title}</h1><p class="lead">${story.completion.text}</p><dl class="completion-summary"><div><dt>조사한 증거</dt><dd>4 / 4</dd></div><div><dt>확인한 기록</dt><dd>12년 전 연구소 화재 기사</dd></div><div><dt>검은색 USB</dt><dd>미연결</dd></div></dl><p class="muted">이번 에피소드는 여기까지입니다. 다음 회차는 아직 제공되지 않습니다.</p><p class="save-note">${storageMessage()}</p><div class="end-actions"><button id="review" class="secondary">증거 다시 살펴보기</button><button id="replay" class="quiet">처음부터 다시 플레이</button></div></section>`;
+      app.innerHTML = `<section class="completion"><p class="eyebrow">CASE FILE / EP01-01</p><span class="completion-seal" aria-hidden="true">✓</span><h1 tabindex="-1">${story.completion.title}</h1><p class="lead">${story.completion.text}</p><dl class="completion-summary"><div><dt>조사한 증거</dt><dd>4 / 4</dd></div><div><dt>확인한 기록</dt><dd>12년 전 연구소 화재 기사</dd></div><div><dt>검은색 USB</dt><dd>미연결</dd></div></dl><p class="muted">다음 회차에서 12년 전 사고의 기록을 이어서 조사할 수 있습니다.</p><p class="save-note">${storageMessage()}</p><div class="end-actions"><button id="next-episode" class="primary">EP01-02 「12년 전의 사고」 시작 →</button><button id="review" class="secondary">증거 다시 살펴보기</button><button id="replay" class="quiet">처음부터 다시 플레이</button></div></section>`;
+      document.querySelector('#next-episode').onclick = () => onNext(JSON.parse(JSON.stringify(state)));
       document.querySelector('#review').onclick = () => move('parcel');
       document.querySelector('#replay').onclick = () => document.querySelector('#restart-dialog').showModal();
     } else {
@@ -206,13 +213,14 @@
     }
     bindImages(app);
   }
-  dialog.addEventListener('close', () => {
+  function onDetailClose() {
     state.inspection = null; save();
     if (!detailReturn) return;
     const kind = detailReturn.kind, source = detailReturn.source;
     const selector = source === 'inventory' ? `[data-evidence="${kind}"]` : `[data-inspect="${kind}"]`;
     (app.querySelector(selector) || app.querySelector('[data-inspect="photo"]'))?.focus();
-  });
+  }
+  dialog.addEventListener('close', onDetailClose);
   document.querySelector('#close-detail').onclick = () => dialog.close();
   const restart = document.querySelector('#restart-dialog');
   document.querySelector('#reset').onclick = () => restart.showModal();
@@ -223,4 +231,15 @@
     save(); render(); app.querySelector('h1')?.focus(); window.scrollTo(0, 0);
   };
   render();
-})();
+  if (!resume && state.inspection) inspect(state.inspection);
+  return {
+    getState: () => JSON.parse(JSON.stringify(state)),
+    dispose() {
+      dialog.removeEventListener('close', onDetailClose);
+      for (const cleanup of [...viewCleanups]) cleanup();
+      if (dialog.open) dialog.close();
+      if (restart.open) restart.close();
+      for (const id of ['reset', 'cancel-reset', 'confirm-reset', 'close-detail']) document.querySelector(`#${id}`).onclick = null;
+    }
+  };
+} };
