@@ -1,6 +1,6 @@
 /* EP01-01의 키·v1 변환 규칙은 변경하지 않는다. 읽기/쓰기 범위는 회차별로 고정한다. */
 window.EpisodeStorage = (() => {
-  const keys = { 'ep01-01': 'ai-story:ep01-01:v2', 'ep01-02': 'ai-story:ep01-02:v1' };
+  const keys = { 'ep01-01': 'ai-story:ep01-01:v2', 'ep01-02': 'ai-story:ep01-02:v1', 'ep01-03': 'ai-story:ep01-03:v1' };
   function read(key, storage) {
     try {
       const raw = (storage === undefined ? window.localStorage : storage).getItem(key);
@@ -31,5 +31,20 @@ window.EpisodeStorage = (() => {
     const fresh = window.Episode02State.fresh(state?.inherited);
     return { state: fresh, available: fresh ? writeEpisode02(fresh, storage) : false };
   }
-  return { keys, readEpisode01, loadEpisode02, writeEpisode02, resetEpisode02 };
+  function writeEpisode03(state, storage) {
+    try { (storage === undefined ? window.localStorage : storage).setItem(keys['ep01-03'], JSON.stringify(state)); return true; }
+    catch { return false; }
+  }
+  function loadEpisode03({ memory, source, storage } = {}) {
+    const disk = read(keys['ep01-03'], storage);
+    const saved = window.Episode03State.normalize(memory) || window.Episode03State.normalize(disk.value);
+    if (saved) return { state: saved, resumed: true, available: disk.available };
+    const checked = window.Episode02State.normalize(source) || window.Episode02State.normalize(read(keys['ep01-02'], storage).value);
+    return { state: window.Episode03State.fresh(checked), resumed: false, available: disk.available };
+  }
+  function resetEpisode03(state, storage) {
+    const fresh = window.Episode03State.fresh(state?.inherited);
+    return { state: fresh, available: fresh ? writeEpisode03(fresh, storage) : false };
+  }
+  return { keys, readEpisode01, loadEpisode02, writeEpisode02, resetEpisode02, loadEpisode03, writeEpisode03, resetEpisode03 };
 })();

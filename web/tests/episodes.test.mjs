@@ -19,11 +19,12 @@ function advance(model, state) {
   for (const action of ['readArticle', 'readSign', 'search', 'openDeleted', 'readPress']) state = model.record(state, action);
   return state;
 }
-test('알려진 두 회차 해시만 허용하고 알 수 없는 주소는 EP01-01로 보낸다', () => {
+test('알려진 세 회차 해시만 허용하고 알 수 없는 주소는 EP01-01로 보낸다', () => {
   const { EpisodeRouting: router } = setup();
   assert.equal(router.resolve('#ep01-01'), 'ep01-01');
   assert.equal(router.resolve('#ep01-02'), 'ep01-02');
-  for (const hash of ['', '#ep01-03', '#__proto__', '#constructor']) assert.equal(router.resolve(hash), 'ep01-01');
+  assert.equal(router.resolve('#ep01-03'), 'ep01-03');
+  for (const hash of ['', '#ep01-04', '#__proto__', '#constructor']) assert.equal(router.resolve(hash), 'ep01-01');
 });
 test('미완료·불완전한 EP01-01 저장으로 다음 회차를 시작할 수 없다', () => {
   const { EpisodeStorage: store, storage } = setup();

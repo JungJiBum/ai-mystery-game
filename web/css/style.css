@@ -267,3 +267,40 @@ dialog h2 { font-family: Georgia, 'Batang', serif; font-size: 28px; margin-botto
 .ep2-release h2 { font-size: clamp(24px, 3vw, 32px); margin: 24px 0; }
 .ep2-release blockquote { color: #303827; background: #e9e5d6; border-left: 3px solid #65714f; font-family: 'Batang', Georgia, serif; font-size: 17px; }
 .ep2-release .muted { color: #5b604e; }
+
+/* EP01-03 document investigation. Scoped to keep previous episodes intact. */
+.episode-three { overflow-wrap: anywhere; }
+.episode-three blockquote { margin: 20px 0; padding: 18px 20px; border-left: 2px solid #8b9b6d; background: #c4d39912; font-size: 15px; line-height: 2; white-space: pre-line; }
+.episode-three fieldset { border: 0; padding: 0; margin: 24px 0; display: grid; gap: 10px; }
+.episode-three legend { font-size: 14px; padding: 0 0 14px; }
+.episode-three .clue-choice { min-width: 0; }
+.ep3-document { background: #d7d1be; color: #292c23; border: 1px solid #aaa58e; padding: clamp(20px, 3vw, 32px); margin: 24px 0; }
+.ep3-document .eyebrow { color: #55613e; }
+.ep3-document h2 { font-family: Georgia, 'Batang', serif; font-size: 24px; font-weight: 400; }
+.ep3-document blockquote { background: #e9e5d6; color: #303827; }
+.ep3-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.ep3-comparison .ep3-document { min-width: 0; }
+.ep3-document dl { margin: 26px 0; }
+.ep3-document dt { font-size: 12px; margin: 20px 0 8px; color: #55613e; }
+.ep3-document dd { margin: 0; }
+.ep3-mark { display: block; width: 100%; padding: 14px; text-align: left; color: #292c23; background: #e9e5d6; border: 1px dashed #737b60; min-height: 48px; font: inherit; }
+.ep3-mark[aria-pressed="true"] { background: #c4d399; border: 2px solid #52603a; padding: 13px; }
+.ep3-mark[aria-pressed="true"]::after { content: ' ✓'; }
+.ep3-code { font-size: 19px; line-height: 1.8; }
+.ep3-mark-status { font-size: 12px; color: #505a40; }
+.ep3-fields { display: grid; gap: 20px; margin: 24px 0; }
+.ep3-fields label, #ep3-search-form label { display: grid; gap: 10px; font-size: 14px; }
+.ep3-fields select, .ep3-query input { width: 100%; min-width: 0; padding: 14px; color: var(--text); background: #10160e; border: 1px solid #6b775b; font: inherit; font-size: 16px; }
+.ep3-fields option { background: #10160e; }
+.ep3-source, .ep3-evidence { border-bottom: 1px solid var(--line); padding: 20px 0; }
+.ep3-source summary, .ep3-evidence summary { cursor: pointer; padding: 6px 0; min-height: 32px; font-size: 14px; }
+.ep3-source p, .ep3-source li, .ep3-evidence blockquote { font-size: 13px; line-height: 1.9; }
+.ep3-undiscovered { color: var(--muted); padding: 20px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.ep3-reading { border: 1px solid var(--line); padding: 24px; margin: 24px 0; background: var(--panel); }
+.ep3-query { display: flex; gap: 10px; margin: 12px 0; }
+.ep3-query input { flex: 1; }
+.ep3-summary { list-style: none; padding: 0; margin: 32px 0; }
+.ep3-summary li { border-top: 1px solid var(--line); padding: 16px 0; }
+@media(max-width: 700px) { .ep3-comparison { grid-template-columns: 1fr; gap: 0; } .ep3-query { flex-direction: column; } }
+
+.episode-three select:focus-visible, .episode-three summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }

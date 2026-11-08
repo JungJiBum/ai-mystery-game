@@ -54,7 +54,7 @@ window.Episode02 = { mount({ initialState, sourceState } = {}) {
       document.querySelector('#ep2-resume').onclick = () => { resume = false; render(); focusTitle(); }; return;
     }
     if (state.scene === 'complete') {
-      app.innerHTML = `<section class="completion"><p class="eyebrow">CASE FILE / EP01-02</p><span class="completion-seal" aria-hidden="true">✓</span><h1 tabindex="-1">${story.completion.title}</h1><p class="lead">${esc(story.completion.text)}</p><p class="ep2-next-hint">${esc(story.completion.next)}</p><p class="muted">EP01-03은 아직 제공되지 않습니다. USB는 미확인 상태로 남아 있습니다.</p><p class="save-note">${storageMessage()}</p><div class="end-actions"><button id="ep2-review" class="secondary">EP01-02 기록 다시 살펴보기</button><a class="quiet ep2-link" href="#ep01-01">EP01-01로 돌아가기</a></div></section>`;
+      app.innerHTML = `<section class="completion"><p class="eyebrow">CASE FILE / EP01-02</p><span class="completion-seal" aria-hidden="true">✓</span><h1 tabindex="-1">${story.completion.title}</h1><p class="lead">${esc(story.completion.text)}</p><p class="ep2-next-hint">${esc(story.completion.next)}</p><p class="muted">USB는 미확인 상태로 남아 있습니다.</p><p class="save-note">${storageMessage()}</p><div class="end-actions"><a class="primary ep2-link" href="#ep01-03">EP01-03 「존재하지 않는 기록」 시작 →</a><button id="ep2-review" class="secondary">EP01-02 기록 다시 살펴보기</button><a class="quiet ep2-link" href="#ep01-01">EP01-01로 돌아가기</a></div></section>`;
       document.querySelector('#ep2-review').onclick = () => move('article'); return;
     }
     const scene = story.scenes[state.scene];
@@ -90,7 +90,7 @@ window.Episode02 = { mount({ initialState, sourceState } = {}) {
     });
   }
   document.querySelector('#restart-title').textContent = 'EP01-02를 처음부터 시작할까요?';
-  restart.querySelector('p').textContent = '이번 회차의 조사 진행만 초기화합니다. EP01-01 저장과 이어받은 기록은 유지합니다.';
+  restart.querySelector('p').textContent = '이번 회차의 조사 진행만 초기화합니다. 다른 회차 저장과 이어받은 기록은 유지합니다.';
   document.querySelector('#reset').onclick = () => restart.showModal();
   document.querySelector('#cancel-reset').onclick = () => restart.close();
   document.querySelector('#confirm-reset').onclick = () => {

@@ -13,10 +13,12 @@
     document.querySelectorAll('[data-episode-link]').forEach(link => { if (link.dataset.episodeLink === id) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
     if (id === 'ep01-01') {
       document.querySelector('#restart-title').textContent = 'EP01-01을 처음부터 시작할까요?';
-      document.querySelector('#restart-dialog p').textContent = 'EP01-01의 증거와 진행 상황만 초기화합니다. EP01-02 저장은 유지합니다.';
+      document.querySelector('#restart-dialog p').textContent = 'EP01-01의 증거와 진행 상황만 초기화합니다. 다른 회차 저장은 유지합니다.';
       mounted = window.Episode01.mount({ initialState: memory[id], resumeImmediately: !!memory[id], onNext(state) { memory[id] = state; window.location.hash = 'ep01-02'; } });
-    } else {
+    } else if (id === 'ep01-02') {
       mounted = window.Episode02.mount({ initialState: memory[id], sourceState: memory['ep01-01'] });
+    } else {
+      mounted = window.Episode03.mount({ initialState: memory[id], sourceState: memory['ep01-02'] });
     }
     app.querySelector('h1')?.focus();
     window.scrollTo(0, 0);
