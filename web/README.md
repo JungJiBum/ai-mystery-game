@@ -102,4 +102,4 @@ EP01-02 완료 → 보도자료 재조사 → 가상 문의 자료 선택 → �
 2. 배포할 준비가 되면 Actions에서 **Deploy game to GitHub Pages**를 수동 실행합니다. 커밋·푸시로는 배포가 시작되지 않습니다.
 3. 성공한 배포의 `github-pages` 환경 URL에서 게임을 엽니다.
 
-`.github/workflows/pages.yml`은 `workflow_dispatch`만 사용하며, 수동 실행 시 `web/`를 배포 대상으로 사용합니다. 상대 경로를 사용해 프로젝트 경로에서도 동작합니다. EP01-01·02는 2026-10-27 배포되었습니다. EP01-03은 이번 로컬 변경이며 GitHub 푸시·배포는 수행하지 않습니다.
+`.github/workflows/pages.yml`은 `workflow_dispatch`만 사용하며, 수동 실행 시 `web/`를 배포 대상으로 사용합니다. 상대 경로를 사용해 프로젝트 경로에서도 동작합니다. EP01-01·02·03 모두 공개 배포되어 있습니다. EP01-03은 2026-11-08 수동 배포 후 진입·직접 접근·저장·이어하기·완료를 확인했습니다. 공개 주소는 https://jungjibum.github.io/ai-mystery-game/ 입니다. EP01-03은 현재 문서 UI로 확정했으며 추가 이미지 제작 계획은 없습니다. 변경된 JS·CSS 로딩 URL에 회차 버전을 붙여 이전 캐시와의 혼용을 방지합니다.
